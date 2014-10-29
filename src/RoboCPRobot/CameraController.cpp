@@ -1,6 +1,12 @@
 #include "CameraController.h"
+#include <cv.h>
+#include <highgui.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <iostream>
 
-
+using namespace cv;
+using namespace std;
 
 CameraController::CameraController(XMLConfig *x, CameraReceivedBuffer *buf)
 {
@@ -22,8 +28,23 @@ CameraController::~CameraController(void)
 
 void CameraController::Start(void)
 {
-  CameraReceived *DataToStorage;
-  CvCapture *Capture = cvCreateCameraCapture(cameraNum);
+  
+	CameraReceived *DataToStorage;
+  CvCapture *Capture;//= cvCreateCameraCapture(cameraNum);
+  
+  bool CameraExist;
+  VideoCapture cap(cameraNum);
+
+  if (cap.isOpened()){
+	  CameraExist=true;
+	  Capture=cvCreateCameraCapture(cameraNum);
+  }
+  else{
+	  CameraExist=false;
+	  Capture=cvCreateFileCapture("C:/Users/Svetlana/Videos/Movavi Library/Umka2.avi");
+  cout<<"\nSecond camera isn't found! Videostream from file will be used.\n";
+  }
+
   IplImage *Frame;
   IplImage *FrameLast = 0;
   cvSetCaptureProperty(Capture,CV_CAP_PROP_FRAME_WIDTH,width);
@@ -31,10 +52,19 @@ void CameraController::Start(void)
   cvSetCaptureProperty(Capture,CV_CAP_PROP_FPS,fps);
   ImageFlowProcessing obj;
   DisplacementImages Displacement;
+  
+  
   while (true){
     Frame = cvQueryFrame(Capture);
+	
+	if ((Frame==0)&&(CameraExist==false)){
+	cvSetCaptureProperty(Capture, CV_CAP_PROP_POS_AVI_RATIO , 0);
+	Frame = cvQueryFrame(Capture);
+	}
+	
 	boost::shared_ptr<CameraReceived> CameraImg(new CameraReceived(Frame));
-    if(FrameLast != 0)
+	
+	if(FrameLast != 0)
 	{
 		obj.CountDisplacement(FrameLast, Frame, &Displacement);
 		Displacement.CountMotion();
@@ -52,3 +82,4 @@ void CameraController::Start(void)
 	FrameLast = Frame;
   }
 }
+
