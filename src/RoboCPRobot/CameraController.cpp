@@ -57,9 +57,10 @@ void CameraController::Start(void)
   while (true){
     Frame = cvQueryFrame(Capture);
 	
-	if ((Frame==0)&&(CameraExist==false)){
-	cvSetCaptureProperty(Capture, CV_CAP_PROP_POS_AVI_RATIO , 0);
-	Frame = cvQueryFrame(Capture);
+	if ((Frame==NULL)&&(CameraExist==false)){
+		cvSetCaptureProperty(Capture, CV_CAP_PROP_POS_AVI_RATIO , 0);
+	FrameLast = cvQueryFrame(Capture);
+	Frame=cvQueryFrame(Capture);
 	}
 	
 	boost::shared_ptr<CameraReceived> CameraImg(new CameraReceived(Frame));
