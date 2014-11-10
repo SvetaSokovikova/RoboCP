@@ -18,6 +18,12 @@
 #include "XMLConfig.h"
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
+#include <cv.h>
+#include <highgui.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+using namespace cv;
 
 #ifdef ENABLE_LOGGING
 #define GLOG_NO_ABBREVIATED_SEVERITIES
@@ -123,30 +129,32 @@ int main(char *args[], int count)
   SendSender sendSender (&config, &sendBuffer);
 
   SendProcessing sendProcessing(&NanoBuffer, &CopterBuffer, &CameraBuffer, &sendBuffer);
+	
   
-
   boost::thread_group tgroup;
-
+  
   tgroup.create_thread ( boost::bind (&KinectController::FakeStart, &kinectController) ); //don't have kinect so made FakeStart func for testing
-
+  
   tgroup.create_thread ( boost::bind (&KinectDownsampler::Start, &kinectDownsampler) );
-
+  
   tgroup.create_thread ( boost::bind (&KinectSender::Start, &kinectSender) );
-
+  
   tgroup.create_thread ( boost::bind (&ClientReceiver::Start, &commandReceiver) );
   
   tgroup.create_thread ( boost::bind (&NanoController::Start, &NanoControl) );
   
-  tgroup.create_thread ( boost::bind (&ArduCopterController::Start, &CopterControl) );
+  tgroup.create_thread ( boost::bind (&ArduCopterController::Start, &CopterControl) ); 
 
-  tgroup.create_thread ( boost::bind (&CameraController::Start, &CameraControl) );
-
+  tgroup.create_thread ( boost::bind (&CameraController::FakeStart, &CameraControl) );
+  //tgroup.create_thread ( boost::bind (&CameraController::Start, &CameraControl) );
+  
   tgroup.create_thread ( boost::bind (&CommandProcessing::Start, &ComProc) );
-
+  
   tgroup.create_thread ( boost::bind (&SendProcessing::Start, &sendProcessing) );
-
+  
   tgroup.create_thread ( boost::bind (&SendSender::Start, &sendSender) );  
-
+  
+  
   #ifdef GPS_TEST
   char *UTC = new char(32);
   char *Lat = new char(32);
@@ -167,9 +175,8 @@ int main(char *args[], int count)
     NanoControl.ChangeGPSMessage(UTC,Lat,Lon,GSp,GC);
   }
   #endif
-
-  tgroup.join_all ();
   
+  tgroup.join_all ();
   
   return 0;
 }
