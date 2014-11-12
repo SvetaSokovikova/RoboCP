@@ -16,6 +16,7 @@
 #include "SendProcessing.h"
 #include "SendSender.h"
 #include "XMLConfig.h"
+#include "c:\Users\Svetlana\Documents\GitHub\RoboCP\src\RoboCPRobot\CameraMock.h"
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <cv.h>
@@ -121,6 +122,8 @@ int main(char *args[], int count)
 
   CameraReceivedBuffer CameraBuffer(1000);
   CameraController CameraControl(&config, &CameraBuffer);
+  
+  CameraMock CamMockControl(&config, &CameraBuffer);
 
   CommandBuffer ComBuffer(100);
   CommandProcessing ComProc(&config, &ComBuffer);
@@ -144,8 +147,9 @@ int main(char *args[], int count)
   tgroup.create_thread ( boost::bind (&NanoController::Start, &NanoControl) );
   
   tgroup.create_thread ( boost::bind (&ArduCopterController::Start, &CopterControl) ); 
-
-  tgroup.create_thread ( boost::bind (&CameraController::FakeStart, &CameraControl) );
+  
+  tgroup.create_thread(boost::bind(&CameraMock::Start,&CamMockControl));
+  
   //tgroup.create_thread ( boost::bind (&CameraController::Start, &CameraControl) );
   
   tgroup.create_thread ( boost::bind (&CommandProcessing::Start, &ComProc) );
