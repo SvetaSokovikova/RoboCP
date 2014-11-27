@@ -32,10 +32,17 @@ void SendSender::Start ()
     #endif 
 	
 	  while (!socketStream.fail() ) {
-		boost::archive::xml_oarchive oa (socketStream); // We want to send objects in XML
+		//boost::archive::xml_oarchive oa (socketStream); // We want to send objects in XML
 	    QSharedPointer<Send> sendData;
 	    sendData = buffer->Dequeue(); // Reading Send object from buffer
-	    oa << BOOST_SERIALIZATION_NVP (sendData); // Serializing and sending it
+		QByteArray block;
+        QDataStream sendStream(&block, QIODevice::ReadWrite);
+ 
+        sendStream << quint16(0) << sendData;
+        sendStream.device()->seek(0);
+        sendStream << (quint16)(block.size() - sizeof(quint16));
+		socketStream.write(block,block.size());
+		//oa << BOOST_SERIALIZATION_NVP (sendData); // Serializing and sending it
 	  } 
   }
   catch (exception& e) {

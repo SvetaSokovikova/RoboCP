@@ -40,8 +40,14 @@ void CommandMaker::Start ()
 		cout << "input condition value (float):" << endl;
         cin >> com.Value;
 
-		
-		oa << BOOST_SERIALIZATION_NVP(com); // Sending command
+		QByteArray block;
+        QDataStream sendStream(&block, QIODevice::ReadWrite);
+ 
+        sendStream << quint16(0) << com;
+        sendStream.device()->seek(0);
+        sendStream << (quint16)(block.size() - sizeof(quint16));
+		socketStream.write(block,block.size());
+		//oa << BOOST_SERIALIZATION_NVP(com); // Sending command
 	  }
 	
 	}
