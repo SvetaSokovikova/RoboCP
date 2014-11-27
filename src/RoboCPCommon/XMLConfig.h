@@ -3,10 +3,13 @@
 #include <string>
 #include <fstream>
 #include "pcl/compression/octree_pointcloud_compression.h"
+#include "QtCore\qdatastream.h"
+
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/nvp.hpp>
+
 
 //#define ENABLE_LOGGING
 
@@ -18,8 +21,10 @@ using namespace std;
 // Config class
 class XMLConfig {
 private:
-  friend class boost::serialization::access;
-  template<class Archive>
+  
+	friend class boost::serialization::access;
+  
+	template<class Archive>
   void serialize (Archive & ar, const unsigned int version)
   {
 	// BOOST_SERIALIZATION_NVP macro used because of XML serialization
@@ -44,14 +49,65 @@ private:
     ar & BOOST_SERIALIZATION_NVP(CameraFrameWidth);
     ar & BOOST_SERIALIZATION_NVP(CameraFrameHeight);
   }
+  
+  
+  friend QDataStream &operator <<(QDataStream &stream,XMLConfig conf)
+  {
+    stream <<conf.IP;
+    stream <<conf.KinectPort;
+    stream <<conf.CommandPort;
+	stream <<conf.SendPort;
+	stream <<conf.CarduinoPort;
+	stream <<conf.ArducopterPort;
+
+    stream <<conf.CompressionProfile;
+    stream <<conf.ShowStatistics;
+    stream <<conf.PointResolution;
+    stream <<conf.OctreeResolution;
+    stream <<conf.DoVoxelGridDownDownSampling;
+    stream <<conf.IFrameRate;
+    stream <<conf.DoColorEncoding;
+    stream <<conf.ColorBitResolution;
+
+    stream <<conf.CameraNumber;
+    stream <<conf.CameraFramesPerSecond;
+    stream <<conf.CameraFrameWidth;
+    stream <<conf.CameraFrameHeight;
+	return stream;
+  }
+
+  friend QDataStream &operator >>(QDataStream &stream,XMLConfig conf)
+  {
+    stream >>conf.IP;
+    stream >>conf.KinectPort;
+    stream >>conf.CommandPort;
+	stream >>conf.SendPort;
+	stream >>conf.CarduinoPort;
+	stream >>conf.ArducopterPort;
+
+    //stream >>conf.CompressionProfile;
+    stream >>conf.ShowStatistics;
+    stream >>conf.PointResolution;
+    stream >>conf.OctreeResolution;
+    stream >>conf.DoVoxelGridDownDownSampling;
+    stream >>conf.IFrameRate;
+    stream >>conf.DoColorEncoding;
+    stream >>conf.ColorBitResolution;
+
+    stream >>conf.CameraNumber;
+    stream >>conf.CameraFramesPerSecond;
+    stream >>conf.CameraFrameWidth;
+    stream >>conf.CameraFrameHeight;
+	return stream;
+  }
 
 public:
-  string IP;
-  string KinectPort;
-  string CommandPort;
-  string SendPort;
-  string CarduinoPort;
-  string ArducopterPort;
+  QString IP;
+  QString KinectPort;
+  QString CommandPort;
+  QString SendPort;
+  QString CarduinoPort;
+  QString ArducopterPort;
 
   pcl::octree::compression_Profiles_e CompressionProfile;
 

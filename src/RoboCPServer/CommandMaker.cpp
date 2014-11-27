@@ -2,6 +2,9 @@
 #include "CommandMaker.h"
 
 
+
+
+
 CommandMaker::CommandMaker (XMLConfig * x)
 {
   ip = x->IP; // Reading IP from config
@@ -15,14 +18,17 @@ CommandMaker::~CommandMaker ()
 void CommandMaker::Start ()
 {
   try {
-    tcp::iostream socketStream (ip.c_str(), port.c_str() ); // Trying to connect
+    tcp::iostream socketStream (ip.toStdString().c_str(), port.toStdString().c_str() ); // Trying to connect
 
 	if (!socketStream.fail() ) {
       cout << "CommandMaker: Connected!" << endl; // TODO: write in log
       #ifdef ENABLE_LOGGING
 	  RAW_LOG (INFO, "CommandMaker: Connected!");
 	  #endif
+	  
+
 	  boost::archive::xml_oarchive oa(socketStream); // We want to send commands in XML
+	  
 	  Command com;
 
 	  while (!socketStream.fail() ) {
@@ -34,6 +40,7 @@ void CommandMaker::Start ()
 		cout << "input condition value (float):" << endl;
         cin >> com.Value;
 
+		
 		oa << BOOST_SERIALIZATION_NVP(com); // Sending command
 	  }
 	

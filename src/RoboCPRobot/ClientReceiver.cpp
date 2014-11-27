@@ -15,8 +15,9 @@ ClientReceiver::~ClientReceiver(void)
 void ClientReceiver::Start ()
 {
   try {
-  boost::asio::io_service io_service;
-	tcp::endpoint endpoint (tcp::v4 (), atoi(port.c_str()) );
+  
+	  boost::asio::io_service io_service;
+	tcp::endpoint endpoint (tcp::v4 (), atoi(port.toStdString().c_str()) );
   tcp::acceptor acceptor (io_service, endpoint);
 
   tcp::iostream socketStream;
@@ -30,11 +31,11 @@ void ClientReceiver::Start ()
   cout << "ClientReceiver: Connected!" << endl; //TODO: write in log
 	#ifdef ENABLE_LOGGING
   RAW_LOG (INFO, "ClientReceiver: Connected!");
-  #endif
-	boost::archive::xml_iarchive ia(socketStream); // We will receive objects in XML
-	Command com;
-
-	while (!socketStream.fail() ) {
+  #endif 
+	 boost::archive::xml_iarchive ia(socketStream); // We will receive objects in XML
+	
+  Command com;
+  while (!socketStream.fail() ) {
 	  ia >> BOOST_SERIALIZATION_NVP(com);
     cout << "New command: " << com.ComType << " " << com.ComCondition << " " << com.Value << endl; // TODO: command buffer
     #ifdef ENABLE_LOGGING

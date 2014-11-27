@@ -2,18 +2,24 @@
 #include <time.h>
 #include "Point3d.h"
 #include "DisplacementImages.h"
+
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
+#include "QtCore\qdatastream.h"
+
 class Send
 {
-private:
-  friend class boost::serialization::access;
 
+private:
+  
+	friend class boost::serialization::access;
+	
   template<class Archive>
   void serialize(Archive & ar, const unsigned int version) {
+	
 	ar & BOOST_SERIALIZATION_NVP(TopSonicSensor);
 	ar & BOOST_SERIALIZATION_NVP(FrontSonicSensor);
 	ar & BOOST_SERIALIZATION_NVP(LeftSonicSensor);
@@ -28,8 +34,53 @@ private:
 
 	ar & BOOST_SERIALIZATION_NVP(Acceleration);
 	ar & BOOST_SERIALIZATION_NVP(PacketType);
-  ar & BOOST_SERIALIZATION_NVP(Time);
+    ar & BOOST_SERIALIZATION_NVP(Time);
 	ar & BOOST_SERIALIZATION_NVP(Motion);
+  }
+  
+  
+  friend QDataStream &operator <<(QDataStream &stream,Send sen)
+  {
+    stream << sen.TopSonicSensor;
+	stream << sen.FrontSonicSensor;
+	stream << sen.LeftSonicSensor;
+	stream << sen.RightSonicSensor;
+	stream << sen.BackSonicSensor;
+
+	stream << sen.Roll;
+	stream << sen.Pitch;
+	stream << sen.Yaw;
+	stream << sen.AltitudeSonic;
+	stream << sen.AltitudeBarometer;
+
+	stream << sen.Acceleration;
+	stream << sen.PacketType;
+    stream << sen.Time;
+	stream << sen.Motion;
+
+	return stream;
+  }
+  
+  friend QDataStream &operator >>(QDataStream &stream,Send sen)
+  {
+    stream >> sen.TopSonicSensor;
+	stream >> sen.FrontSonicSensor;
+	stream >> sen.LeftSonicSensor;
+	stream >> sen.RightSonicSensor;
+	stream >> sen.BackSonicSensor;
+
+	stream >> sen.Roll;
+	stream >> sen.Pitch;
+	stream >> sen.Yaw;
+	stream >> sen.AltitudeSonic;
+	stream >> sen.AltitudeBarometer;
+
+	stream >> sen.Acceleration;
+	stream >> sen.PacketType;
+    stream >> sen.Time;
+	stream >> sen.Motion;
+
+	return stream;
   }
 
 public:
@@ -44,7 +95,7 @@ public:
   float Yaw;
   float AltitudeSonic;
   float AltitudeBarometer;
-    
+  
   Point3d Acceleration;
   int PacketType;
   time_t Time;
@@ -53,6 +104,7 @@ public:
 
   Send(void);
   ~Send(void); 
+
 };
 
 BOOST_SERIALIZATION_SHARED_PTR(Send)

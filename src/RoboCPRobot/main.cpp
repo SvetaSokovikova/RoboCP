@@ -23,6 +23,8 @@
 #include <highgui.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "QtCore\qsharedpointer.h"
+
 
 using namespace cv;
 
